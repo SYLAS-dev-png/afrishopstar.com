@@ -9,41 +9,224 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-       const products = [
-  { id:1, name:"Tissu Wax Africain Premium", price:4500, currency:"FCFA", supplier:"Textiles Africains Ltd", rating:4.5, reviews:128, image:"https://picsum.photos/300/200?random=1" },
-  { id:2, name:"Smartphone Android 128GB", price:85000, currency:"FCFA", supplier:"Tech Import Africa", rating:4.8, reviews:256, image:"https://picsum.photos/300/200?random=2" },
-  { id:3, name:"Tracteur Agricole 50HP", price:12500000, currency:"FCFA", supplier:"AgriPro Solutions", rating:4.9, reviews:42, image:"https://picsum.photos/300/200?random=3" },
-  { id:4, name:"Ciment Portland 50kg", price:5500, currency:"FCFA", supplier:"BuildMaster Ltd", rating:4.7, reviews:89, image:"https://picsum.photos/300/200?random=4" }
-];
+   <script>
+    // =========================
+    // DONNÉES ET FONCTIONS EXISTANTES (inchangées)
+    // =========================
 
-function stars(r){
-  let s="";
-  for(let i=0;i<5;i++){
-    s += i<Math.floor(r)
-      ? '<i class="fas fa-star text-yellow-400"></i>'
-      : '<i class="far fa-star text-yellow-400"></i>';
-  }
-  return s;
-}
+    const products = [ /* (tes produits — pas besoin de les recopier ici) */ ];
 
-function showProducts(){
-  document.getElementById("featured-products").innerHTML =
-    products.map(p=>`
-      <div class="bg-white p-4 rounded shadow">
-        <img src="${p.image}" class="w-full h-40 object-cover mb-2">
-        <h4 class="font-bold">${p.name}</h4>
-        <div>${stars(p.rating)} (${p.reviews})</div>
-        <p class="text-primary font-bold">${p.price} ${p.currency}</p>
-        <button onclick="alert('Ajouté : ${p.name}')" class="mt-2 bg-primary text-white px-4 py-2 rounded">
-          Ajouter
-        </button>
-      </div>
-    `).join("");
-}
+    function formatPrice(price) {
+        return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    }
 
-document.addEventListener("DOMContentLoaded", showProducts);
-    </script>
+    function generateRatingStars(rating) {
+        let stars = "";
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 >= 0.5;
+
+        for (let i = 0; i < 5; i++) {
+            if (i < fullStars) {
+                stars += '<i class="fas fa-star text-yellow-400"></i>';
+            } else if (i === fullStars && hasHalfStar) {
+                stars += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
+            } else {
+                stars += '<i class="far fa-star text-yellow-400"></i>';
+            }
+        }
+        return stars;
+    }
+
+    function generateProductCard(product) {
+        return `
+            <div class="product-card bg-white rounded-lg shadow overflow-hidden">
+                <div class="relative">
+                    <img src="${product.image}" 
+                         alt="${product.name}" 
+                         class="w-full h-48 object-cover"
+                         loading="lazy">
+                    <div class="absolute top-2 right-2 bg-primary text-white text-xs font-bold px-2 py-1 rounded">
+                        Vérifié
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-bold text-gray-800 line-clamp-2">${product.name}</h4>
+                        <button class="text-gray-400 hover:text-primary"
+                                onclick="toggleFavorite(${product.id}, this)">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="flex items-center mb-1">
+                            ${generateRatingStars(product.rating)}
+                            <span class="text-sm text-gray-500 ml-2">
+                                ${product.rating} (${product.reviews})
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-500">${product.supplier}</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="text-2xl font-bold text-primary">
+                            ${formatPrice(product.price)} ${product.currency}
+                        </div>
+                        <p class="text-sm text-gray-500">
+                            ${product.unit} • Min. commande: ${product.minOrder}
+                        </p>
+                    </div>
+
+                    <div class="flex space-x-2">
+                        <button class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-orange-600 transition font-medium"
+                                onclick="addToCart(${product.id})">
+                            <i class="fas fa-shopping-cart mr-2"></i>Ajouter
+                        </button>
+                        <button class="px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition"
+                                onclick="viewProduct(${product.id})">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function displayProducts() {
+        const container = document.getElementById("featured-products");
+        container.innerHTML = products
+            .slice(0, 4)
+            .map(product => generateProductCard(product))
+            .join("");
+    }
+
+    // =========================
+    // ✅ NOUVELLES FONCTIONS DES BOUTONS
+    // =========================
+
+    function addToCart(productId) {
+        const product = products.find(p => p.id === productId);
+        alert(`🛒 Ajouté au panier : ${product.name}`);
+    }
+
+    function viewProduct(productId) {
+        const product = products.find(p => p.id === productId);
+
+        alert(
+            `📦 DÉTAIL PRODUIT\n\n` +
+            `Nom : ${product.name}\n` +
+            `Prix : ${formatPrice(product.price)} ${product.currency}\n` +
+            `Fournisseur : ${product.supplier}\n\n` +
+            `👉 (Plus tard, tu pourras créer une vraie page produit)`
+        );
+    }
+
+    function toggleFavorite(productId, btn) {
+        const icon = btn.querySelector("i");
+
+        if (icon.classList.contains("far")) {
+            icon.classList.remove("far");
+            icon.classList.add("fas");
+            icon.classList.add("text-primary");
+            alert("❤️ Ajouté aux favoris !");
+        } else {
+            icon.classList.remove("fas", "text-primary");
+            icon.classList.add("far");
+            alert("❌ Retiré des favoris.");
+        }
+    }
+
+    // =========================
+    // NAVIGATION (MENU + BOUTONS)
+    // =========================
+
+    function scrollToSection(title) {
+        const sections = {
+            "Accueil": "header",
+            "Catégories populaires": "section",
+            "Produits en vedette": "#featured-products",
+            "Fournisseurs vérifiés": null
+        };
+
+        if (title.includes("Accueil")) {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            return;
+        }
+
+        const target = document.querySelector("#featured-products");
+
+        if (target) {
+            target.scrollIntoView({ behavior: "smooth" });
+        } else {
+            alert(`Navigation : ${title}`);
+        }
+    }
+
+    // =========================
+    // INITIALISATION
+    // =========================
+
+    document.addEventListener("DOMContentLoaded", function() {
+        displayProducts();
+
+        // ---- Navigation des liens ----
+        document.querySelectorAll("a[href='javascript:void(0)']").forEach(link => {
+            link.addEventListener("click", function(e) {
+                e.preventDefault();
+                const text = this.textContent.trim();
+                scrollToSection(text);
+            });
+        });
+
+        // ---- Bouton "Vendre maintenant" ----
+        document.querySelectorAll("button").forEach(btn => {
+            const text = btn.textContent.trim();
+
+            if (text.includes("Vendre maintenant")) {
+                btn.addEventListener("click", () => {
+                    alert("🚀 Redirection vers l’espace vendeur (à créer)");
+                });
+            }
+
+            if (text.includes("Télécharger l'app")) {
+                btn.addEventListener("click", () => {
+                    alert("📱 Lien de téléchargement de l’application (à ajouter)");
+                });
+            }
+
+            if (text.includes("Explorer les produits")) {
+                btn.addEventListener("click", () => {
+                    document
+                        .getElementById("featured-products")
+                        .scrollIntoView({ behavior: "smooth" });
+                });
+            }
+
+            if (text.includes("Devenir fournisseur")) {
+                btn.addEventListener("click", () => {
+                    alert("👨‍💼 Page inscription fournisseur (à créer)");
+                });
+            }
+        });
+
+        // ---- Recherche ----
+        const searchButton = document.querySelector("button.bg-primary");
+        const searchInput = document.querySelector(".search-bar");
+
+        searchButton.addEventListener("click", function() {
+            if (searchInput.value.trim()) {
+                alert(`🔍 Recherche : ${searchInput.value}`);
+            }
+        });
+
+        searchInput.addEventListener("keypress", function(e) {
+            if (e.key === "Enter" && searchInput.value.trim()) {
+                alert(`🔍 Recherche : ${searchInput.value}`);
+            }
+        });
+    });
+</script>
+
     <style>
         * {
             font-family: 'Inter', sans-serif;
