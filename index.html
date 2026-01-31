@@ -10,26 +10,39 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#FF6B00",
-                        secondary: "#003366",
-                        accent: "#00A859",
-                        dark: "#1A1A1A",
-                        light: "#F8F9FA"
-                    },
-                    fontFamily: {
-                        'inter': ['Inter', 'sans-serif']
-                    },
-                    spacing: {
-                        '128': '32rem',
-                        '144': '36rem'
-                    }
-                }
-            }
-        }
+       const products = [
+  { id:1, name:"Tissu Wax Africain Premium", price:4500, currency:"FCFA", supplier:"Textiles Africains Ltd", rating:4.5, reviews:128, image:"https://picsum.photos/300/200?random=1" },
+  { id:2, name:"Smartphone Android 128GB", price:85000, currency:"FCFA", supplier:"Tech Import Africa", rating:4.8, reviews:256, image:"https://picsum.photos/300/200?random=2" },
+  { id:3, name:"Tracteur Agricole 50HP", price:12500000, currency:"FCFA", supplier:"AgriPro Solutions", rating:4.9, reviews:42, image:"https://picsum.photos/300/200?random=3" },
+  { id:4, name:"Ciment Portland 50kg", price:5500, currency:"FCFA", supplier:"BuildMaster Ltd", rating:4.7, reviews:89, image:"https://picsum.photos/300/200?random=4" }
+];
+
+function stars(r){
+  let s="";
+  for(let i=0;i<5;i++){
+    s += i<Math.floor(r)
+      ? '<i class="fas fa-star text-yellow-400"></i>'
+      : '<i class="far fa-star text-yellow-400"></i>';
+  }
+  return s;
+}
+
+function showProducts(){
+  document.getElementById("featured-products").innerHTML =
+    products.map(p=>`
+      <div class="bg-white p-4 rounded shadow">
+        <img src="${p.image}" class="w-full h-40 object-cover mb-2">
+        <h4 class="font-bold">${p.name}</h4>
+        <div>${stars(p.rating)} (${p.reviews})</div>
+        <p class="text-primary font-bold">${p.price} ${p.currency}</p>
+        <button onclick="alert('Ajouté : ${p.name}')" class="mt-2 bg-primary text-white px-4 py-2 rounded">
+          Ajouter
+        </button>
+      </div>
+    `).join("");
+}
+
+document.addEventListener("DOMContentLoaded", showProducts);
     </script>
     <style>
         * {
